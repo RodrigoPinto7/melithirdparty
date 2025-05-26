@@ -1,0 +1,16 @@
+name: 'melithirdparty'
+version: '1.0'
+config-version: 2
+
+profile: 'melithirdparty'
+
+model-paths: ["models"]
+target-path: "target"
+clean-targets: ["target", "dbt_modules"]
+
+models:
+  melithirdparty:
+    staging:
+      materialized: view
+    marts:
+      materialized: table

@@ -32,16 +32,31 @@ resource "google_storage_bucket" "terraform_state" {
   }
 }
 
-# Crear bucket de GCS para los datos
-resource "google_storage_bucket" "aws_billing_bucket" {
-  name     = "aws-billing-data-melithirdparty"
+# Crear bucket de Raw
+resource "google_storage_bucket" "melithirdparty_raw" {
+  name     = "melithirdparty-raw"
   location = var.region
   uniform_bucket_level_access = true
+  
+  versioning {
+    enabled = true
+  }
+}
+
+# Crear bucket de Stage
+resource "google_storage_bucket" "melithirdparty_stage" {
+  name     = "melithirdparty-stage"
+  location = var.region
+  uniform_bucket_level_access = true
+  
+  versioning {
+    enabled = true
+  }
 }
 
 # Crear dataset de BigQuery
 resource "google_bigquery_dataset" "billing_dataset" {
-  dataset_id                  = "aws_billing"
+  dataset_id                  = "billing_staging"
   location                   = var.region
   delete_contents_on_destroy = true
 }
@@ -71,8 +86,12 @@ resource "google_composer_environment" "composer_env" {
 }
 */
 
-output "bucket_name" {
-  value = google_storage_bucket.aws_billing_bucket.name
+output "bucket_name_raw" {
+  value = google_storage_bucket.melithirdparty_raw.name
+}
+
+output "bucket_name_stage" {
+  value = google_storage_bucket.melithirdparty_stage.name
 }
 
 output "bigquery_dataset_id" {
