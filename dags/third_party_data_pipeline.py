@@ -30,10 +30,10 @@ from scripts.create_bigquery_views import run_view_creation
 from scripts.create_dq_tables import run_dq_creation
 
 # Constants
-# DEFAULT_PROJECT_ID = "melithirdparty-460619"
-# DEFAULT_DATASET_ID = "billing_staging"
-# DEFAULT_RAW_BUCKET = "melithirdparty-raw"
-# DEFAULT_STAGE_BUCKET = "melithirdparty-stage"
+DEFAULT_PROJECT_ID = "melithirdparty-460619"
+DEFAULT_DATASET_ID = "billing_staging"
+DEFAULT_RAW_BUCKET = "melithirdparty-raw"
+DEFAULT_STAGE_BUCKET = "melithirdparty-stage"
 CREDENTIALS_DIR = Path('/tmp/scripts_creds')
 
 # Logging configuration
@@ -46,15 +46,19 @@ logger = logging.getLogger(__name__)
 def get_config() -> Dict[str, str]:
     try:
         config = {
-            "project_id": Variable.get("project_id"),  # Required
-            "dataset_id": Variable.get("dataset_id"),  # Required
-            "raw_bucket": Variable.get("raw_bucket"),  # Required
-            "stage_bucket": Variable.get("stage_bucket")  # Required
+            "project_id": Variable.get("project_id", DEFAULT_PROJECT_ID),
+            "dataset_id": Variable.get("dataset_id", DEFAULT_DATASET_ID),
+            "raw_bucket": Variable.get("raw_bucket", DEFAULT_RAW_BUCKET),
+            "stage_bucket": Variable.get("stage_bucket", DEFAULT_STAGE_BUCKET)
         }
         return config
-    except Exception as e:
-        logger.error(f"Error getting configuration from Airflow Variables: {str(e)}")
-        raise AirflowException("Required Airflow Variables not set. Please set project_id, dataset_id, raw_bucket, and stage_bucket variables.")
+    except Exception:
+        return {
+            "project_id": DEFAULT_PROJECT_ID,
+            "dataset_id": DEFAULT_DATASET_ID,
+            "raw_bucket": DEFAULT_RAW_BUCKET,
+            "stage_bucket": DEFAULT_STAGE_BUCKET
+        }
 
 def setup_credentials(**context) -> None:
     drive_conn = BaseHook.get_connection('google_drive_credentials')
